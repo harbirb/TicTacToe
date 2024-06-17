@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 
-function Square({value, onSquareClick}) {
-  return <button className="square" onClick={onSquareClick}>{value}</button>
+function Square({value, onSquareClick, highlight}) {
+  let style = highlight ? {backgroundColor: 'greenyellow'} : {backgroundColor: 'gainsboro'}
+  return <button className=" square" onClick={onSquareClick} style={style}>{value}</button>
 }
 
 export default function Game() {
@@ -77,10 +78,10 @@ function Board({xIsNext, squares, onPlay}) {
     onPlay(nextSquares)
   }
 
-  const winner = calculateWinner(squares)
+  const winLocations = calculateWinner(squares)
   let status;
-  if (winner) {
-    status = "Winner: " + winner;
+  if (winLocations) {
+    status = "Winner: " + squares[winLocations[0]];
   } else {
     status = "Next player: " + (xIsNext ? 'X' : 'O')
   }
@@ -91,8 +92,12 @@ function Board({xIsNext, squares, onPlay}) {
     for (let j = 0; j < 3; j++) {
       let row=[]
       for (let i = 0; i < 3; i++) {
-        let index = j*3 +i;      
-        row.push(<Square value={squares[index]} onSquareClick={() => handleClick(index)}/>)
+        const index = j*3 +i;
+        let highlighted = false;      
+        if (winLocations && winLocations.includes(index)) {
+          highlighted = true;
+        } 
+        row.push(<Square value={squares[index]} highlight={highlighted} onSquareClick={() => handleClick(index)}/>)
       }
       board.push(<div className="board-row">
         {row}
@@ -123,7 +128,7 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return [a, b, c];
     }
   }
   return null;
