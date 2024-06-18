@@ -12,7 +12,8 @@ export default function Game() {
   const [currentMove, setCurrentMove] = useState(0);
   const currentSquares = history[currentMove]
   const xIsNext = currentMove % 2 ===0
-  const [ascendingMoves, setAscendingMoves] = useState(true); 
+  const [ascendingMoves, setAscendingMoves] = useState(true);
+  const [locations, setLocations] = useState([Array(2).fill(null)]);
 
 
   function handlePlay(nextSquares) {
@@ -21,14 +22,20 @@ export default function Game() {
     setCurrentMove(currentMove+1)
   }
 
+  function addLocation(location) {
+    locations[currentMove+1] = [Math.floor(location/3 + 1) , location%3 +1]
+    setLocations(locations)
+  }
+
   function jumpTo(nextMove) {
     setCurrentMove(nextMove)
   }
 
   let moves = history.map((squares, move) => {
     let description;
+
     if (move > 0 && move !== currentMove) {
-      description = 'Go to move #' + move;
+      description = 'Go to move #' + move +': ('+ locations[move].join(', ') + ')';
     } else if (move === currentMove) {
       return (
         <li key={move}>
@@ -39,6 +46,7 @@ export default function Game() {
     else {
       description = 'Go to game start';
     }
+
     return (
       <li key={move}>
         <button onClick={() => jumpTo(move)}>{description}</button>
@@ -53,17 +61,17 @@ export default function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}/>
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} addLocation={addLocation}/>
       </div>
       <div className="game-info">
-        <button onClick={toggleMovesOrder}>Toggle Order of Moves</button>
+        <button onClick={toggleMovesOrder}>Toggle Order of Move History</button>
         <ol>{ascendingMoves ? moves : moves.reverse()}</ol>
       </div>
     </div>
   );
 }
 
-function Board({xIsNext, squares, onPlay}) {
+function Board({xIsNext, squares, onPlay, addLocation}) {
 
   function handleClick(i) {
     if (squares[i] || calculateWinner(squares)) {
@@ -75,6 +83,7 @@ function Board({xIsNext, squares, onPlay}) {
     } else {
       nextSquares[i] = 'O'
     }
+    addLocation(i);
     onPlay(nextSquares)
   }
 
