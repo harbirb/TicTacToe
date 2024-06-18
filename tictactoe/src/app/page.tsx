@@ -86,6 +86,10 @@ function Board({xIsNext, squares, onPlay}) {
     status = "Next player: " + (xIsNext ? 'X' : 'O')
   }
 
+  if (!squares.includes(null) && !winLocations) {
+    status = "TIE"
+  }
+
 
   function makeBoard() {
     let board = []
